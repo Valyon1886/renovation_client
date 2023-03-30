@@ -41,6 +41,12 @@ fun JobInfo(job: Job, listTask: List<Job>, navController: NavController, jobId: 
     val name = remember { mutableStateOf(TextFieldValue("")) }
     val description = remember { mutableStateOf(TextFieldValue("")) }
 
+    var endList = remember { mutableStateOf(listTask) }
+
+    LaunchedEffect(true){
+        endList.value = jobApi.getAllSubTask(jobId)
+    }
+
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -94,7 +100,7 @@ fun JobInfo(job: Job, listTask: List<Job>, navController: NavController, jobId: 
                                 color = Color.White,
                                 text = "${it.name}"
                             )
-                            Text(text = "Название $jobId", color = TextJobItem, fontSize = 12.sp)
+                            Text(text = "Название", color = TextJobItem, fontSize = 12.sp)
                             Text(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp,
@@ -104,7 +110,7 @@ fun JobInfo(job: Job, listTask: List<Job>, navController: NavController, jobId: 
                         }
                     }
                     LazyColumn{
-                        itemsIndexed(listTask){_, item ->
+                        itemsIndexed(endList.value){_, item ->
                             ListSubTask(item, navController)
                         }
                     }
@@ -158,6 +164,8 @@ fun JobInfo(job: Job, listTask: List<Job>, navController: NavController, jobId: 
                                             CoroutineScope(Dispatchers.IO).launch {
                                                 val jobInput = JobInput(name.value.text, description.value.text)
                                                 jobApi.addTaskToJob(jobInput, jobId)
+
+                                                endList.value = jobApi.getAllSubTask(jobId)
                                             }
                                             showDialog = false
 
