@@ -1,6 +1,8 @@
 package com.example.myapplication.ScreenTasks
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,13 +19,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myapplication.Entity.Job
 import com.example.myapplication.Retrofit.JobApi
+import com.example.myapplication.Retrofit.UserApi
 import com.example.myapplication.ui.theme.BGColor
 import com.example.myapplication.ui.theme.NavColor
 import com.example.myapplication.ui.theme.Red
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScreenTasks(jobApi: JobApi, navController: NavController) {
+fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -44,7 +48,7 @@ fun ScreenTasks(jobApi: JobApi, navController: NavController) {
                     .fillMaxSize()
                     .background(color = BGColor)
             ){
-                TaskItem(jobApi, navController)
+                TaskItem(userApi, jobApi, navController)
             }
         }
     )

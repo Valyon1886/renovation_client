@@ -2,10 +2,7 @@ package com.example.myapplication.ScreenJobs
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -14,6 +11,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -48,6 +46,7 @@ fun ScreenJobs(userApi: UserApi, jobApi: JobApi, navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = BGColor)
+                    .padding(bottom = 55.dp)
             ) {
                 JobItem(userApi, jobApi, navController)
             }

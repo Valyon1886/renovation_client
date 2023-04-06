@@ -82,7 +82,7 @@ fun ScreenCreateJob(jobApi: JobApi, navController: NavController) {
                 Button(
                     onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
-                            val jobInput = JobInput(name.value.text, description.value.text)
+//                            val jobInput = JobInput(name.value.text, description.value.text)
 //                            jobApi.addTaskToJob(jobInput)
                         }
                         navController.navigateUp()

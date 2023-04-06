@@ -1,6 +1,8 @@
 package com.example.myapplication.Navigation.Bottom_Navigation
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -24,6 +26,7 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 import retrofit2.converter.gson.GsonConverterFactory
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen() {

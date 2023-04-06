@@ -27,4 +27,7 @@ interface JobApi {
     @POST("job/add/task/{jobId}")
     suspend fun addTaskToJob(@Body job: JobInput, @Path("jobId") jobId: Int): Job
 
+    @POST("job/{jobId}/addMatTo/{materialId}")
+    suspend fun addMaterialToJob(@Path("jobId") jobId: Int, @Path("materialId") materialId: Int): Job
+
 }

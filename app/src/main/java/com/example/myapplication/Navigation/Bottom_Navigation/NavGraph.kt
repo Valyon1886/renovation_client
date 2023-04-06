@@ -1,6 +1,8 @@
 package com.example.myapplication.Navigation.Bottom_Navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,6 +20,7 @@ import com.example.myapplication.ScreenMaterial.ScreenMaterial
 import com.example.myapplication.ScreenProfile.ScreenProfile
 import com.example.myapplication.ScreenTasks.ScreenTasks
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(
     navHostController: NavHostController,
@@ -34,20 +37,21 @@ fun NavGraph(
             ScreenJobs(userApi, jobApi, navHostController)
         }
         composable("tasks"){
-            ScreenTasks(jobApi, navHostController)
+            ScreenTasks(userApi, jobApi, navHostController)
         }
         composable("docx"){
             ScreenDocx()
         }
-        composable(Routes.Material.route){
-            ScreenMaterial(navHostController)
+        composable("${Routes.Material.route}/{id}"){ navBackStack ->
+            val jobId = navBackStack.arguments?.getString("id")?.toInt() ?: 0
+            ScreenMaterial(jobId = jobId, userApi, materialApi, navHostController)
         }
         composable(Routes.CreateJob.route){
             ScreenCreateJob(jobApi, navHostController)
         }
         composable("${Routes.SubTask.route}/{id}"){ navBackStack ->
             val jobId = navBackStack.arguments?.getString("id")?.toInt() ?: 0
-            ScreenSubTask(jobId = jobId, jobApi, navHostController)
+            ScreenSubTask(jobId = jobId, jobApi, navHostController, userApi)
         }
     }
 }
