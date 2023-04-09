@@ -6,6 +6,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +36,7 @@ import androidx.navigation.NavController
 import com.example.myapplication.Entity.Job
 import com.example.myapplication.Entity.Material
 import com.example.myapplication.Models.JobInput
+import com.example.myapplication.Models.MaterialInput
 import com.example.myapplication.Navigation.Bottom_Navigation.Routes
 import com.example.myapplication.R
 import com.example.myapplication.Retrofit.JobApi
@@ -60,7 +65,7 @@ fun JobInfo(
     val name = remember { mutableStateOf(TextFieldValue("")) }
     val description = remember { mutableStateOf(TextFieldValue("")) }
     val materials = remember { mutableStateOf<List<Material>>(emptyList()) }
-
+    var material by remember { mutableStateOf(Material("",0,0)) }
 
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
@@ -73,9 +78,12 @@ fun JobInfo(
     var endList = remember { mutableStateOf(listTask) }
 
     var listMaterial = remember { mutableStateOf<List<Material>>(emptyList()) }
+
 //    var listMaterialInput = remember { mutableStateOf<List<Material>>(emptyList()) }
 
     var expanded by remember { mutableStateOf(false) }
+
+    var expandedTagMaterial by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         endList.value = jobApi.getAllSubTask(jobId)
@@ -145,18 +153,55 @@ fun JobInfo(
                     )
                     Spacer(modifier = Modifier.height(5.dp))
 
+                    AnimatedVisibility(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                        visible = expandedTagMaterial)
+                    {
+                        Column() {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                text = "Добавленные материалы"
+                            )
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                content = {
+                                    items(materials.value){
+                                        Card(modifier = Modifier.padding(10.dp), shape = RoundedCornerShape(10.dp), backgroundColor = Red) {
+                                            Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                                Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(3f)) {
+                                                    Text(it.name, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                                }
+                                                Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)) {
+                                                    IconButton(onClick = {
+                                                        materials.value -= it
+                                                        Log.d("materials = ", "${materials.value}")
+                                                    }) {
+                                                        Icon(Icons.Default.Close, contentDescription = "Удалить материал из списка", tint = Color.White, modifier = Modifier.size(18.dp))
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
                     IconButton(
                         onClick = { expanded = !expanded }
                     ) {
                         Icon(Icons.Filled.List, contentDescription = "Показать список материалов", tint = Color.White)
                     }
                     AnimatedVisibility(visible = expanded) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth()
-                        ){
-                            itemsIndexed(listMaterial.value){_, item ->
-                                var isChecked = remember { mutableStateOf(false) }
-                                var count = remember { mutableStateOf("") }
+                        var expandedMenu by remember { mutableStateOf(false) }
+                        var count = remember { mutableStateOf("") }
+                        var nameMaterial by remember { mutableStateOf("Материал") }
+
                                 Card(
                                     border = BorderStroke(1.dp,Color.Red),
                                     backgroundColor = NavColor,
@@ -169,24 +214,53 @@ fun JobInfo(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Box(modifier = Modifier.width(120.dp), contentAlignment = Alignment.CenterStart){
-                                            Text(
-                                                item.name,
-                                                fontSize = 15.sp,
-                                                color = Color.White,
-                                                modifier = Modifier.padding(start = 5.dp)
-                                            )
+                                        Box(modifier = Modifier.width(150.dp), contentAlignment = Alignment.CenterStart) {
+                                            TextButton(onClick = { expandedMenu = true }) {
+                                                Text(
+                                                    text = nameMaterial,
+                                                    fontSize = 18.sp,
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                            DropdownMenu(
+                                                expanded = expandedMenu,
+                                                onDismissRequest = { expandedMenu = false }
+                                            ) {
+                                                Box(modifier = Modifier.fillMaxSize()){
+                                                    Column() {
+                                                        listMaterial.value.forEach() { item ->
+                                                            DropdownMenuItem(onClick = {}){
+                                                                Text(
+                                                                    text = item.name,
+                                                                    fontSize = 18.sp,
+                                                                    modifier = Modifier
+                                                                        .padding(10.dp)
+                                                                        .clickable(onClick = {
+                                                                            nameMaterial = item.name
+                                                                            expandedMenu = false
+                                                                            material.name = item.name
+                                                                            material.cost = item.cost
+                                                                        })
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
-                                        Box(modifier = Modifier.width(150.dp), contentAlignment = Alignment.TopCenter){
+                                        Box(modifier = Modifier.width(100.dp), contentAlignment = Alignment.TopCenter){
                                             OutlinedTextField(
                                                 value = count.value,
                                                 onValueChange = {
                                                     count.value = it
-                                                    item.count = count.value.toIntOrNull() ?: 0
+                                                    material.count = count.value.toIntOrNull() ?: 0
+//                                                    item.count = count.value.toIntOrNull() ?: 0
                                                 },
                                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                                 singleLine = false,
-                                                textStyle = TextStyle(fontSize =  15.sp),
+                                                shape = RoundedCornerShape(10.dp),
+                                                textStyle = TextStyle(fontSize =  18.sp, fontWeight = FontWeight.Bold),
                                                 colors = TextFieldDefaults.outlinedTextFieldColors(
                                                     textColor = Color.White,
                                                     unfocusedBorderColor = BGColor,
@@ -196,32 +270,93 @@ fun JobInfo(
                                             )
                                         }
                                         Box(modifier = Modifier.width(40.dp), contentAlignment = Alignment.CenterEnd){
-                                            Checkbox(
-                                                checked = isChecked.value,
-                                                onCheckedChange = {
-                                                    isChecked.value = it
-                                                    if(it)
-                                                        materials.value += item
-                                                    else materials.value -= item
+                                            IconButton(
+                                                onClick = {
+                                                    materials.value += material.copy()
                                                     Log.d("materials = ", "${materials.value}")
-                                                },
-                                                colors = CheckboxDefaults.colors(
-                                                    checkedColor = Red,
-                                                    uncheckedColor = Color.DarkGray,
-                                                    checkmarkColor = Color.White
-                                                )
-                                            )
+                                                    expandedTagMaterial = true
+                                                }
+                                            ) {
+                                                Icon(Icons.Filled.Add, contentDescription = "Добавить материал", tint = Color.White)
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    }
+
+//                    AnimatedVisibility(visible = expanded) {
+//                        LazyColumn(
+//                            modifier = Modifier.fillMaxWidth()
+//                        ){
+//                            itemsIndexed(listMaterial.value){_, item ->
+//                                var isChecked = remember { mutableStateOf(false) }
+//                                var count = remember { mutableStateOf("") }
+//                                Card(
+//                                    border = BorderStroke(1.dp,Color.Red),
+//                                    backgroundColor = NavColor,
+//                                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 7.dp)
+//                                ){
+//                                    Row(
+//                                        modifier = Modifier
+//                                            .fillMaxWidth()
+//                                            .padding(3.dp),
+//                                        verticalAlignment = Alignment.CenterVertically,
+//                                        horizontalArrangement = Arrangement.SpaceBetween
+//                                    ) {
+//                                        Box(modifier = Modifier.width(120.dp), contentAlignment = Alignment.CenterStart){
+//                                            Text(
+//                                                item.name,
+//                                                fontSize = 15.sp,
+//                                                color = Color.White,
+//                                                modifier = Modifier.padding(start = 5.dp)
+//                                            )
+//                                        }
+//                                        Box(modifier = Modifier.width(150.dp), contentAlignment = Alignment.TopCenter){
+//                                            OutlinedTextField(
+//                                                value = count.value,
+//                                                onValueChange = {
+//                                                    count.value = it
+//                                                    item.count = count.value.toIntOrNull() ?: 0
+//                                                },
+//                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+//                                                singleLine = false,
+//                                                textStyle = TextStyle(fontSize =  15.sp),
+//                                                colors = TextFieldDefaults.outlinedTextFieldColors(
+//                                                    textColor = Color.White,
+//                                                    unfocusedBorderColor = BGColor,
+//                                                    focusedBorderColor = BGColor,
+//                                                    cursorColor = BGColor
+//                                                )
+//                                            )
+//                                        }
+//                                        Box(modifier = Modifier.width(40.dp), contentAlignment = Alignment.CenterEnd){
+//                                            Checkbox(
+//                                                checked = isChecked.value,
+//                                                onCheckedChange = {
+//                                                    isChecked.value = it
+//                                                    if(it)
+//                                                        materials.value += item
+//                                                    else materials.value -= item
+//                                                    Log.d("materials = ", "${materials.value}")
+//                                                },
+//                                                colors = CheckboxDefaults.colors(
+//                                                    checkedColor = Red,
+//                                                    uncheckedColor = Color.DarkGray,
+//                                                    checkmarkColor = Color.White
+//                                                )
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val jobInput = JobInput(name.value.text, description.value.text, materials.value.toMutableList())
+                                Log.d("JobInput", "${jobInput.materials}")
                                 jobApi.addTaskToJob(jobInput, jobId)
 
                                 endList.value = jobApi.getAllSubTask(jobId)
