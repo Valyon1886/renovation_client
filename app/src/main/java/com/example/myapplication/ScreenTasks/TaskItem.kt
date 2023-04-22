@@ -1,6 +1,7 @@
 package com.example.myapplication.ScreenTasks
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -8,10 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
@@ -37,7 +35,7 @@ import kotlinx.coroutines.launch
 fun TaskItem(userApi: UserApi, jobApi: JobApi, navController: NavController) {
     var job by remember { mutableStateOf<Job?>(null) }
     var listJob by remember { mutableStateOf<List<Job>>(emptyList()) }
-
+    val snackbarVisible = remember { mutableStateOf(false) }
 
     LaunchedEffect(true){
         listJob = jobApi.getAllJob()
@@ -76,11 +74,25 @@ fun TaskItem(userApi: UserApi, jobApi: JobApi, navController: NavController) {
                             }
                             IconButton(modifier = Modifier.background(color = Red2).size(30.dp), onClick = {
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    userApi.chosieTask(1, item.id)
+                                    userApi.chosieTask(102, item.id)
                                     listJob = jobApi.getAllJob()
+                                    snackbarVisible.value = true
                                 }
                             }) {
                                 Icon(Icons.Filled.Add, contentDescription = "Добавить работу", tint = Color.White)
+                            }
+                            if (snackbarVisible.value) {
+                                Snackbar(
+                                    modifier = Modifier.padding(16.dp),
+                                    content = { Text(text = "Подзадача создана") },
+                                    action = {
+                                        TextButton(
+                                            onClick = { snackbarVisible.value = false }
+                                        ) {
+                                            Text(text = "ОК")
+                                        }
+                                    }
+                                )
                             }
                         }
 

@@ -2,6 +2,7 @@ package com.example.myapplication.Retrofit
 import com.example.myapplication.Entity.Job
 import com.example.myapplication.Entity.Material
 import com.example.myapplication.Entity.User
+import com.example.myapplication.Entity.MainMaterial
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -19,6 +20,9 @@ interface UserApi {
 
     @DELETE("job/delete/task/{subTaskId}/{jobId}")
     suspend fun deleteTask(@Path("subTaskId") subTaskId: Int, @Path("jobId") jobId: Int)
+
+    @GET("user/get/allMaterial/{jobId}")
+    suspend fun getUserMainMaterial(@Path("jobId") jobId: Int): List<MainMaterial>
 
     @GET("user/get/allMaterial/{jobId}")
     suspend fun getUserMaterial(@Path("jobId") jobId: Int): List<Material>

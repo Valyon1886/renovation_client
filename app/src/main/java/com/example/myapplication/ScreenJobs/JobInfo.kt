@@ -1,7 +1,9 @@
 package com.example.myapplication.Composable
 
 import android.annotation.SuppressLint
+import android.icu.text.CaseMap.Title
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -23,9 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +52,7 @@ import com.example.myapplication.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
@@ -92,6 +97,38 @@ fun JobInfo(
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "ПЛАН",
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.Filled.ArrowBack,
+                            contentDescription = "Назад",
+                            tint = Color.White
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate("${Routes.Material.route}/${job.id}") }) {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "Материалы",
+                            tint = Color.White
+                        )
+                    }
+                },
+                backgroundColor = NavColor
+            )
+        },
         sheetShape = RoundedCornerShape(10.dp),
         sheetContent = {
             Box(
@@ -122,7 +159,7 @@ fun JobInfo(
                         value = name.value,
                         onValueChange = { name.value = it },
                         label = { Text("Название проекта", color = Color.White) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                         singleLine = true,
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             textColor = Color.White,
@@ -361,9 +398,19 @@ fun JobInfo(
 
                                 endList.value = jobApi.getAllSubTask(jobId)
 
+                                //очищаются поля с названием и описанием
                                 name.value = TextFieldValue("")
                                 description.value = TextFieldValue("")
+                                //закрывается поле с выбранными материалами
+                                expandedTagMaterial = false
+                                //очищаем список с материалами
+                                materials.value = emptyList()
+                                //скрываем поле добавления материалов
+                                expanded = false
                             }
+
+
+
                             scope.launch {
                                 sheetState.collapse()
                             }
@@ -386,44 +433,13 @@ fun JobInfo(
                 }
             }
         },
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "ПЛАН",
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        color = Color.White
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            Icons.Filled.ArrowBack,
-                            contentDescription = "Назад",
-                            tint = Color.White
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate("${Routes.Material.route}/${job.id}") }) {
-                        Icon(
-                            Icons.Filled.Settings,
-                            contentDescription = "Материалы",
-                            tint = Color.White
-                        )
-                    }
-                },
-                backgroundColor = NavColor
-            )
-        },
         content = {
             job.let {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = BGColor),
+                        .background(color = BGColor)
+                        .padding(bottom = 55.dp),
                 ) {
                     Card(
                         modifier = Modifier
@@ -503,7 +519,7 @@ fun JobInfo(
                                             }) {
                                                 Icon(
                                                     Icons.Filled.Delete,
-                                                    contentDescription = "Добавить работу",
+                                                    contentDescription = "Удалить работу",
                                                     tint = Color.White
                                                 )
                                             }
@@ -527,6 +543,46 @@ fun JobInfo(
                                                 fontWeight = FontWeight.Medium,
                                                 fontSize = 15.sp
                                             )
+                                        }
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(5.dp)
+                                    ){
+                                        Column() {
+                                            Text(
+                                                text = "Материалы",
+                                                color = TextJobItem,
+                                                fontSize = 12.sp
+                                            )
+                                            item.materials?.forEach{
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(3.dp),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.Start
+                                                ) {
+                                                    Box(modifier = Modifier.width(120.dp)) {
+                                                        Text(
+                                                            it.name,
+                                                            color = Color.White,
+                                                            fontSize = 15.sp
+                                                        )
+                                                    }
+                                                    Card(shape = RoundedCornerShape(10.dp), backgroundColor = Color.White) {
+                                                        Box(contentAlignment = Alignment.Center, modifier = Modifier.width(50.dp)) {
+                                                            Text(
+                                                                "${it.count}",
+                                                                color = Color.Black,
+                                                                fontSize = 15.sp,
+                                                                fontWeight = FontWeight.Bold
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                     Box(

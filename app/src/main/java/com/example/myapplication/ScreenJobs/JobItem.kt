@@ -34,7 +34,7 @@ fun JobItem(userApi: UserApi, jobApi: JobApi, navController: NavController) {
 
 
     LaunchedEffect(true){
-        user = userApi.getUserById(1)
+        user = userApi.getUserById(102)
         listJob = user!!.id?.let { userApi.getUserTask(it) }!!
     }
 

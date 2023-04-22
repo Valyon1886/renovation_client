@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "80803693874",
+    "firebase_url": "https://apartment-renovation-danielp4-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "apartment-renovation-danielp4",
+    "storage_bucket": "apartment-renovation-danielp4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80803693874:android:a54dfeb6f7766f01ef032b",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "80803693874-n92cccr4p4ncdkjpctv8ikbs0q3qnebm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.myapplication",
+            "certificate_hash": "11b134e2420388fb542775c2dc4b18371a2fd07a"
+          }
+        },
+        {
+          "client_id": "80803693874-up732khv30tvlajniuudnkm613ts7u6a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAktY5jdYEief7kLw0mvshrB8YglILSB_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "80803693874-24nr80nu07o1sbmh0tcscq801ks8vpt1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,7 +2,6 @@ package com.example.myapplication.ScreenMaterial
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -10,10 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -27,11 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.myapplication.Entity.Job
 import com.example.myapplication.Entity.Material
-import com.example.myapplication.Models.JobInput
+import com.example.myapplication.Entity.MainMaterial
 import com.example.myapplication.Models.MaterialInput
-import com.example.myapplication.Navigation.Bottom_Navigation.Routes
 import com.example.myapplication.Retrofit.MaterialApi
 import com.example.myapplication.Retrofit.UserApi
 import com.example.myapplication.ui.theme.BGColor
@@ -49,10 +43,10 @@ fun ScreenMaterial(
     jobId: Int, userApi: UserApi, materialApi: MaterialApi, navController: NavController
 ) {
 
-    var listMaterial by remember { mutableStateOf<List<Material>>(emptyList()) }
+    var listMaterial by remember { mutableStateOf<List<MainMaterial>>(emptyList()) }
 
     LaunchedEffect(true) {
-        listMaterial = userApi.getUserMaterial(jobId)
+        listMaterial = userApi.getUserMainMaterial(jobId)
     }
 
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
@@ -68,6 +62,9 @@ fun ScreenMaterial(
     var name = remember { mutableStateOf(TextFieldValue("")) }
     var cost = remember { mutableStateOf(TextFieldValue("")) }
     var count = remember { mutableStateOf(TextFieldValue("")) }
+
+    val snackbarVisible = remember { mutableStateOf(false) }
+
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -155,8 +152,8 @@ fun ScreenMaterial(
                                 val materialInput = MaterialInput(name.value.text, count.value.text.toIntOrNull(), cost.value.text.toIntOrNull())
                                 materialApi.addMaterialToJob(materialInput, jobId)
 
-                                listMaterial = userApi.getUserMaterial(jobId)
-
+                                listMaterial = userApi.getUserMainMaterial(jobId)
+                                snackbarVisible.value = true
                                 name.value = TextFieldValue("")
                                 cost.value = TextFieldValue("")
                                 count.value = TextFieldValue("")
@@ -181,6 +178,19 @@ fun ScreenMaterial(
                             color = Color.White
                         )
                     }
+//                    if (snackbarVisible.value) {
+//                        Snackbar(
+//                            modifier = Modifier.padding(16.dp),
+//                            content = { Text(text = "Материал добавлен") },
+//                            action = {
+//                                TextButton(
+//                                    onClick = { snackbarVisible.value = false }
+//                                ) {
+//                                    Text(text = "ОК")
+//                                }
+//                            }
+//                        )
+//                    }
                 }
             }
         },
@@ -234,46 +244,75 @@ fun ScreenMaterial(
                                 ) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Column() {
-                                            Text(
-                                                text = "Название",
-                                                color = TextJobItem,
-                                                fontSize = 12.sp
-                                            )
-                                            Text(
-                                                text = item.name,
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = 15.sp
-                                            )
+                                        Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.weight(2f)) {
+                                            Column() {
+                                                Text(
+                                                    text = "Название",
+                                                    color = TextJobItem,
+                                                    fontSize = 12.sp
+                                                )
+                                                Text(
+                                                    text = item.name,
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Medium,
+                                                    fontSize = 15.sp
+                                                )
+                                            }
                                         }
-                                        Column() {
-                                            Text(
-                                                text = "Стоимость",
-                                                color = TextJobItem,
-                                                fontSize = 12.sp
-                                            )
-                                            Text(
-                                                text = "${item.cost}",
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = 15.sp
-                                            )
+                                        Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(2f)) {
+                                            Column() {
+                                                Text(
+                                                    text = "Стоимость",
+                                                    color = TextJobItem,
+                                                    fontSize = 12.sp,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    textAlign = TextAlign.Center
+                                                )
+                                                Text(
+                                                    text = "${item.cost}",
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Medium,
+                                                    fontSize = 15.sp,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+                                            }
                                         }
-                                        Column() {
-                                            Text(
-                                                text = "Количество",
-                                                color = TextJobItem,
-                                                fontSize = 12.sp
-                                            )
-                                            Text(
-                                                text = "${item.count}",
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = 15.sp
-                                            )
+                                        Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(2f)) {
+                                            Column() {
+                                                Text(
+                                                    text = "Количество",
+                                                    color = TextJobItem,
+                                                    fontSize = 12.sp,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    textAlign = TextAlign.Center
+                                                )
+                                                Text(
+                                                    text = "${item.count}",
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Medium,
+                                                    fontSize = 15.sp,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+                                        }
+                                        Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
+                                            IconButton(modifier = Modifier.size(30.dp), onClick = {
+                                                CoroutineScope(Dispatchers.IO).launch {
+                                                    materialApi.deleteMaterialFromJob(item.id, jobId)
+                                                    listMaterial = userApi.getUserMainMaterial(jobId)
+                                                }
+                                            }) {
+                                                Icon(
+                                                    Icons.Filled.Delete,
+                                                    contentDescription = "Удалить работу",
+                                                    tint = Color.White
+                                                )
+                                            }
                                         }
                                     }
                                 }
