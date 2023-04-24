@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.Auth.AuthMainScreen
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInApi
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -41,64 +44,13 @@ class AuthActivity : AppCompatActivity() {
     lateinit var launcher: ActivityResultLauncher<Intent>
     lateinit var auth: FirebaseAuth
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent{
             Scaffold {
-                var emailState by remember { mutableStateOf(TextFieldValue()) }
-                var passwordState by remember { mutableStateOf(TextFieldValue()) }
-
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Регистрация",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    OutlinedTextField(
-                        value = emailState,
-                        onValueChange = { emailState = it },
-                        label = { Text("Email") },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        ),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = passwordState,
-                        onValueChange = { passwordState = it },
-                        label = { Text("Пароль") },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        ),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            val email = emailState.text
-                            val password = passwordState.text
-                            register(email.toString(), password.toString())
-                        },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(text = "Зарегистрироваться")
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { signInWithGoogle() }) {
-
-                    }
-                }
+                AuthMainScreen(authActivity = this@AuthActivity)
             }
         }
 
@@ -126,14 +78,28 @@ class AuthActivity : AppCompatActivity() {
         checkAuthState()
     }
 
-    private fun register(email: String, password: String){
+
+    fun register(email: String, password: String){
         Log.d( "Email ","$email $password")
         if(!email.isEmpty() && !password.isEmpty()) {
             auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
                 if (it.isSuccessful) {
-                    Toast.makeText(applicationContext, "Зарегало", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Пользователь $email успешно зарегистрирован", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(applicationContext, "Не зарегало", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Не зарегало", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun signIn(email: String, password: String){
+        if(!email.isEmpty() && !password.isEmpty()) {
+            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Toast.makeText(this, "Вошли в аккаунт успешно", Toast.LENGTH_SHORT).show()
+                    checkAuthState()
+                } else {
+                    Toast.makeText(this, "Пользователь не найден", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -148,7 +114,7 @@ class AuthActivity : AppCompatActivity() {
         return GoogleSignIn.getClient(this, gso)
     }
 
-    private fun signInWithGoogle(){
+    fun signInWithGoogle(){
         val signInClient = getClient()
         launcher.launch(signInClient.signInIntent)
     }
