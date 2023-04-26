@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myapplication.Entity.Job
+import com.example.myapplication.Entity.User
 import com.example.myapplication.Retrofit.JobApi
 import com.example.myapplication.Retrofit.UserApi
 import com.example.myapplication.ui.theme.BGColor
@@ -27,7 +28,7 @@ import com.example.myapplication.ui.theme.Red
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController) {
+fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, user: User) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,7 +49,7 @@ fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController) 
                     .fillMaxSize()
                     .background(color = BGColor)
             ){
-                TaskItem(userApi, jobApi, navController)
+                TaskItem(userApi, jobApi, navController, user)
             }
         }
     )

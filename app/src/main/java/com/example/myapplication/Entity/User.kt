@@ -9,5 +9,5 @@ data class User(
     var lastName: String,
     var jobs: MutableList<Job>?,
     var employers: MutableList<Employer>?,
-    val id: Long? = null
+    val id: Int
 )

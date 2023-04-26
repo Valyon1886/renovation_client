@@ -17,16 +17,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myapplication.Navigation.Bottom_Navigation.Routes
 import com.example.myapplication.Composable.JobItem
+import com.example.myapplication.Entity.User
 import com.example.myapplication.Retrofit.JobApi
 import com.example.myapplication.Retrofit.UserApi
 import com.example.myapplication.ui.theme.BGColor
 import com.example.myapplication.ui.theme.GrayMain
 import com.example.myapplication.ui.theme.NavColor
 import com.example.myapplication.ui.theme.Red
+import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScreenJobs(userApi: UserApi, jobApi: JobApi, navController: NavController) {
+fun ScreenJobs(userApi: UserApi, jobApi: JobApi, navController: NavController, auth: FirebaseAuth, user: User) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,7 +50,7 @@ fun ScreenJobs(userApi: UserApi, jobApi: JobApi, navController: NavController) {
                     .background(color = BGColor)
                     .padding(bottom = 55.dp)
             ) {
-                JobItem(userApi, jobApi, navController)
+                JobItem(userApi, jobApi, navController, auth, user)
             }
         },
         bottomBar = {

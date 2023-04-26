@@ -20,9 +20,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         setContent {
-            MainScreen()
+            MainScreen(auth, mainActivity = this@MainActivity)
         }
         Log.d("ID = ", "${auth.currentUser?.uid}")
+    }
+
+    fun signOut(){
+        auth.signOut()
+        finish()
     }
 }
 

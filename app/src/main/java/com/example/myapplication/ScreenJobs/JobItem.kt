@@ -25,17 +25,16 @@ import com.example.myapplication.ScreenJobs.ListJobItem
 import com.example.myapplication.ui.theme.NavColor
 import com.example.myapplication.ui.theme.Red
 import com.example.myapplication.ui.theme.TextJobItem
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun JobItem(userApi: UserApi, jobApi: JobApi, navController: NavController) {
+fun JobItem(userApi: UserApi, jobApi: JobApi, navController: NavController, auth: FirebaseAuth, user: User) {
     var job by remember { mutableStateOf<Job?>(null) }
-    var user by remember { mutableStateOf<User?>(null) }
     var listJob by remember { mutableStateOf<List<Job>>(emptyList()) }
 
 
     LaunchedEffect(true){
-        user = userApi.getUserById(102)
-        listJob = user!!.id?.let { userApi.getUserTask(it) }!!
+        listJob = userApi.getUserTask(user.id)
     }
 
 
