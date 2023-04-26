@@ -82,7 +82,7 @@ fun NavGraph(
         }
         composable("${Routes.SubTask.route}/{id}") { navBackStack ->
             val jobId = navBackStack.arguments?.getString("id")?.toInt() ?: 0
-            ScreenSubTask(jobId = jobId, jobApi, navHostController, userApi)
+            ScreenSubTask(jobId = jobId, jobApi, navHostController, userApi, user!!)
         }
         composable("user_registration") {
             ScreenUserRegistration(userApi, navHostController, auth, mainActivity)

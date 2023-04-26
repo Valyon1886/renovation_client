@@ -2,8 +2,10 @@ package com.example.myapplication.ScreenProfile
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,6 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -43,6 +46,8 @@ import com.example.myapplication.ui.theme.NavColor
 import com.example.myapplication.ui.theme.Red
 import com.example.myapplication.R
 import com.example.myapplication.Retrofit.UserApi
+import com.google.android.material.shape.CornerSize
+import com.google.android.material.shape.RoundedCornerTreatment
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -394,63 +399,58 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
                 ){
                     Card(
                         modifier = Modifier.padding(start = 20.dp, end = 20.dp),
-                        backgroundColor = NavColor
+                        backgroundColor = NavColor,
+                        shape = RoundedCornerShape(10.dp)
                     ) {
                         Column() {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(4f),
-                                contentAlignment = Alignment.TopCenter
-                            ){
-                                Column() {
-                                    LazyColumn {
-                                        itemsIndexed(listEmployer) { _, item ->
-                                            Card(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(10.dp),
-                                                backgroundColor = Red,
-                                                shape = RoundedCornerShape(10.dp),
-                                                elevation = 10.dp
-                                            ) {
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ){
-                                                    Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.weight(2f)) {
-                                                        Column(){
-                                                            Box(
-                                                                contentAlignment = Alignment.CenterStart
-                                                            ) {
-                                                                Text(
-                                                                    text = item.post
-                                                                )
-                                                            }
-                                                            Box(
-                                                                contentAlignment = Alignment.CenterStart
-                                                            ) {
-                                                                Text(
-                                                                    text = "${item.lastName} ${item.firstName} ${item.secondName}"
-                                                                )
-                                                            }
-                                                        }
+                            LazyColumn {
+                                itemsIndexed(listEmployer) { _, item ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ){
+                                            Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.weight(3f)) {
+                                                Column(modifier = Modifier.padding(5.dp)){
+                                                    Box(
+                                                        contentAlignment = Alignment.CenterStart
+                                                    ) {
+                                                        Text(
+                                                            text = item.post,
+                                                            color = Color.White,
+                                                            fontSize = 15.sp,
+                                                            fontWeight = FontWeight.Medium
+                                                        )
                                                     }
-                                                    Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.weight(1f)){
-                                                        IconButton(modifier = Modifier.size(30.dp), onClick = {
-                                                            CoroutineScope(Dispatchers.IO).launch {
-                                                                userApi.deleteEmployerFromUser(user.id, item.id)
-                                                                listEmployer = userApi.getUserEmployerOfUser(user.id)
-                                                            }
-                                                        }) {
-                                                            Icon(
-                                                                Icons.Filled.Delete,
-                                                                contentDescription = "Удалить напарника",
-                                                                tint = Color.White
-                                                            )
-                                                        }
+                                                    Box(
+                                                        contentAlignment = Alignment.CenterStart
+                                                    ) {
+                                                        Text(
+                                                            text = "${item.lastName} ${item.firstName} ${item.secondName}",
+                                                            color = Color.White,
+                                                            fontSize = 18.sp,
+                                                            fontWeight = FontWeight.Bold
+                                                        )
                                                     }
+                                                }
+                                            }
+                                            Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.weight(1f)){
+                                                IconButton(modifier = Modifier.size(30.dp), onClick = {
+                                                    CoroutineScope(Dispatchers.IO).launch {
+                                                        userApi.deleteEmployerFromUser(user.id, item.id)
+                                                        listEmployer = userApi.getUserEmployerOfUser(user.id)
+                                                    }
+                                                }) {
+                                                    Icon(
+                                                        painter = painterResource(id = R.drawable.baseline_person_off_24),
+                                                        contentDescription = "Удалить напарника",
+                                                        tint = Color.White
+                                                    )
                                                 }
                                             }
                                         }

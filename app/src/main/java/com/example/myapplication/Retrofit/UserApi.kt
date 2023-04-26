@@ -40,8 +40,11 @@ interface UserApi {
     @POST("user/employer/add/{userId}")
     suspend fun addEmployerToUser(@Path("userId") userId: Int, @Body employer: EmployerInput): User
 
-    @GET("user/get/allEmployer/{jobId}")
-    suspend fun getUserEmployerOfUser(@Path("jobId") jobId: Int): List<EmployerOfUser>
+    @GET("user/get/allEmployer/{userId}")
+    suspend fun getUserEmployerOfUser(@Path("userId") userId: Int): List<EmployerOfUser>
+
+    @GET("user/get/allEmployer/{userId}")
+    suspend fun getUserEmployer(@Path("userId") userId: Int): List<Employer>
 
     @DELETE("user/{userId}/deleteEmFrom/{employerId}")
     suspend fun deleteEmployerFromUser(@Path("userId") userId: Int, @Path("employerId") employerId: Int)

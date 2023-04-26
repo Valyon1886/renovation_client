@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -37,8 +38,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.myapplication.Entity.Employer
 import com.example.myapplication.Entity.Job
 import com.example.myapplication.Entity.Material
+import com.example.myapplication.Entity.User
 import com.example.myapplication.Models.JobInput
 import com.example.myapplication.Models.MaterialInput
 import com.example.myapplication.Navigation.Bottom_Navigation.Routes
@@ -64,7 +67,8 @@ fun JobInfo(
     navController: NavController,
     jobId: Int,
     jobApi: JobApi,
-    userApi: UserApi
+    userApi: UserApi,
+    user: User
 ) {
 
     val name = remember { mutableStateOf(TextFieldValue("")) }
@@ -87,12 +91,18 @@ fun JobInfo(
 //    var listMaterialInput = remember { mutableStateOf<List<Material>>(emptyList()) }
 
     var expanded by remember { mutableStateOf(false) }
-
     var expandedTagMaterial by remember { mutableStateOf(false) }
+
+    var expandedEmployer by remember { mutableStateOf(false) }
+    var expandedTagEmployer by remember { mutableStateOf(false) }
+    var listEmployer = remember { mutableStateOf<List<Employer>>(emptyList()) }
+    val employers = remember { mutableStateOf<List<Employer>>(emptyList()) }
+    var employer by remember { mutableStateOf(Employer("","","", "", 0, 0)) }
 
     LaunchedEffect(true) {
         endList.value = jobApi.getAllSubTask(jobId)
         listMaterial.value = userApi.getUserMaterial(jobId)
+        listEmployer.value = userApi.getUserEmployer(user.id)
     }
 
     BottomSheetScaffold(
@@ -134,7 +144,7 @@ fun JobInfo(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(670.dp)
+                    .height(800.dp)
                     .background(color = NavColor),
                 contentAlignment = Alignment.TopCenter
             ) {
@@ -218,6 +228,7 @@ fun JobInfo(
                                                     IconButton(onClick = {
                                                         materials.value -= it
                                                         Log.d("materials = ", "${materials.value}")
+                                                        if (materials.value.isEmpty()) expandedTagMaterial = false
                                                     }) {
                                                         Icon(Icons.Default.Close, contentDescription = "Удалить материал из списка", tint = Color.White, modifier = Modifier.size(18.dp))
                                                     }
@@ -229,10 +240,74 @@ fun JobInfo(
                             )
                         }
                     }
-                    IconButton(
-                        onClick = { expanded = !expanded }
+                    AnimatedVisibility(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                        visible = expandedTagEmployer)
+                    {
+                        Column() {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                text = "Добавленные напарники"
+                            )
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                content = {
+                                    items(employers.value){
+                                        Card(modifier = Modifier.padding(10.dp), shape = RoundedCornerShape(10.dp), backgroundColor = Red) {
+                                            Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                                Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(3f)) {
+                                                    Text(it.post, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                                }
+                                                Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)) {
+                                                    IconButton(onClick = {
+                                                        employers.value -= it
+                                                        Log.d("employers = ", "${employers.value}")
+                                                        if (employers.value.isEmpty()) expandedTagMaterial = false
+                                                    }) {
+                                                        Icon(Icons.Default.Close, contentDescription = "Удалить напарника из списка", tint = Color.White, modifier = Modifier.size(18.dp))
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Filled.List, contentDescription = "Показать список материалов", tint = Color.White)
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)) {
+                            IconButton(
+                                onClick = { expanded = !expanded }
+                            ) {
+                                Icon(
+                                    Icons.Filled.List,
+                                    contentDescription = "Показать список материалов",
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)) {
+                            IconButton(
+                                onClick = { expandedEmployer = !expandedEmployer }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_person_add_alt_1_24),
+                                    contentDescription = "Показать список напарников",
+                                    tint = Color.White
+                                )
+                            }
+                        }
+
                     }
                     AnimatedVisibility(visible = expanded) {
                         var expandedMenu by remember { mutableStateOf(false) }
@@ -276,8 +351,10 @@ fun JobInfo(
                                                                         .clickable(onClick = {
                                                                             nameMaterial = item.name
                                                                             expandedMenu = false
-                                                                            material.name = item.name
-                                                                            material.cost = item.cost
+                                                                            material.name =
+                                                                                item.name
+                                                                            material.cost =
+                                                                                item.cost
                                                                         })
                                                                 )
                                                             }
@@ -388,12 +465,83 @@ fun JobInfo(
 //                            }
 //                        }
 //                    }
+                    AnimatedVisibility(visible = expandedEmployer) {
+                        var expandedMenuEmployer by remember { mutableStateOf(false) }
+                        var postEmployer by remember { mutableStateOf("Должность") }
+                        Card(
+                            border = BorderStroke(1.dp,Color.Red),
+                            backgroundColor = NavColor,
+                            modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 7.dp)
+                        ){
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(3.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Box(modifier = Modifier.width(150.dp), contentAlignment = Alignment.CenterStart) {
+                                    TextButton(onClick = { expandedMenuEmployer = true }) {
+                                        Text(
+                                            text = postEmployer,
+                                            fontSize = 18.sp,
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = expandedMenuEmployer,
+                                        onDismissRequest = { expandedMenuEmployer = false }
+                                    ) {
+                                        Box(modifier = Modifier.fillMaxSize()){
+                                            Column() {
+                                                listEmployer.value.forEach() { item ->
+                                                    DropdownMenuItem(onClick = {}){
+                                                        Text(
+                                                            text = item.post,
+                                                            fontSize = 18.sp,
+                                                            modifier = Modifier
+                                                                .padding(10.dp)
+                                                                .clickable(onClick = {
+                                                                    postEmployer = item.post
+                                                                    expandedMenuEmployer = false
+                                                                    employer.firstName =
+                                                                        item.firstName
+                                                                    employer.secondName =
+                                                                        item.secondName
+                                                                    employer.lastName =
+                                                                        item.lastName
+                                                                    employer.post = item.post
+                                                                    employer.cost = item.cost
+                                                                    employer.clock = item.clock
+                                                                })
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                Box(modifier = Modifier.width(40.dp), contentAlignment = Alignment.CenterEnd){
+                                    IconButton(
+                                        onClick = {
+                                            employers.value += employer.copy()
+                                            Log.d("employers = ", "${employers.value}")
+                                            expandedTagEmployer = true
+                                        }
+                                    ) {
+                                        Icon(Icons.Filled.Add, contentDescription = "Добавить напарника", tint = Color.White)
+                                    }
+                                }
+                            }
+                        }
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
-                                val jobInput = JobInput(name.value.text, description.value.text, materials.value.toMutableList())
-                                Log.d("JobInput", "${jobInput.materials}")
+                                val jobInput = JobInput(name.value.text, description.value.text, materials.value.toMutableList(), employers.value.toMutableList())
+                                Log.d("JobInput", "${jobInput.materials} ${jobInput.employers}")
                                 jobApi.addTaskToJob(jobInput, jobId)
 
                                 endList.value = jobApi.getAllSubTask(jobId)
@@ -407,6 +555,12 @@ fun JobInfo(
                                 materials.value = emptyList()
                                 //скрываем поле добавления материалов
                                 expanded = false
+                                //закрывается поле с выбранными напарниками
+                                expandedTagEmployer = false
+                                //очищаем список с напарниками
+                                employers.value = emptyList()
+                                //скрываем поле добавления напарников
+                                expandedEmployer = false
                             }
 
 
@@ -559,8 +713,7 @@ fun JobInfo(
                                             item.materials?.forEach{
                                                 Row(
                                                     modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(3.dp),
+                                                        .fillMaxWidth(),
                                                     verticalAlignment = Alignment.CenterVertically,
                                                     horizontalArrangement = Arrangement.Start
                                                 ) {
@@ -580,6 +733,38 @@ fun JobInfo(
                                                                 fontWeight = FontWeight.Bold
                                                             )
                                                         }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(5.dp)
+                                    ){
+                                        Column() {
+                                            Text(
+                                                text = "Рабочие",
+                                                color = TextJobItem,
+                                                fontSize = 12.sp
+                                            )
+                                            item.employers?.forEach{
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth(),
+//                                                    verticalArrangement = Arrangement.CenterVertically,
+//                                                    horizontalAlignment = Alignment.Start
+                                                ) {
+                                                    Box(
+                                                        contentAlignment = Alignment.CenterStart
+                                                    ) {
+                                                        Text(
+                                                            text = "${it.post}: ${it.lastName} ${it.firstName} ${it.secondName}",
+                                                            color = Color.White,
+                                                            fontSize = 15.sp,
+                                                            fontWeight = FontWeight.Medium
+                                                        )
                                                     }
                                                 }
                                             }
