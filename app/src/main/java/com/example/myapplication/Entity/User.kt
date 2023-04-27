@@ -3,7 +3,7 @@ package com.example.myapplication.Entity
 data class User(
     var userName: String,
     var password: String,
-    var image: String,
+    var imgSrc: String,
     var firstName: String,
     var secondName: String,
     var lastName: String,

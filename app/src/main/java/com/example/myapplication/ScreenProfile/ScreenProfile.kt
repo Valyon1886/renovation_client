@@ -1,7 +1,18 @@
 package com.example.myapplication.ScreenProfile
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.media.Image
+import android.net.Uri
+import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +32,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -34,6 +49,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.myapplication.Entity.Employer
 import com.example.myapplication.Entity.EmployerOfUser
 import com.example.myapplication.Entity.MainMaterial
@@ -49,13 +67,17 @@ import com.example.myapplication.Retrofit.UserApi
 import com.google.android.material.shape.CornerSize
 import com.google.android.material.shape.RoundedCornerTreatment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "ShowToast")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "ShowToast", "RememberReturnType")
 @Composable
 fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivity, user: User) {
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
@@ -71,6 +93,24 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
     var cost = remember { mutableStateOf(TextFieldValue("")) }
 
     var listEmployer by remember { mutableStateOf<List<EmployerOfUser>>(emptyList()) }
+
+    val imageBitmapState = remember { mutableStateOf<ImageBitmap?>(null) }
+    val storage = Firebase.storage
+    var storageRef = storage.reference
+    var imDB: ImageView? = null
+
+    Log.d("uploadUri", user.imgSrc)
+
+    fun downloadImage(){
+        Picasso.get().load(user.imgSrc).into(imDB)
+        imageBitmapState.value = imDB?.drawable?.toBitmap()?.asImageBitmap()
+        Log.d("Image ", "${imageBitmapState.value}")
+    }
+
+    val painter = imageBitmapState.value?.let { uri ->
+        rememberAsyncImagePainter(model = uri)
+    } ?: painterResource(id = R.drawable.image)
+
 
     LaunchedEffect(true) {
         listEmployer = userApi.getUserEmployerOfUser(user.id)
@@ -275,15 +315,22 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
                         .weight(1.5f),
                     contentAlignment = Alignment.Center
                 ){
-                    Image(
-                        painter = painterResource(id = R.drawable.image),
-                        contentDescription = "profile",
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.TopCenter,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                    )
+                    Column() {
+                        Image(
+                            painter = painter,
+                            contentDescription = "profile",
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.TopCenter,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                        )
+                        Button(onClick = {
+                            downloadImage()
+                        }) {
+                            Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Изменить картинку профиля")
+                        }
+                    }
                 }
                 Box(
                     modifier = Modifier

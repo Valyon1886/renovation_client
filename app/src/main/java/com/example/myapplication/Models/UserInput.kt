@@ -8,7 +8,7 @@ data class UserInput(
     var secondName: String?,
     var lastName: String?,
     var idToken: String?,
-    var image: String?
+    var imgSrc: String?
 )
 
 
