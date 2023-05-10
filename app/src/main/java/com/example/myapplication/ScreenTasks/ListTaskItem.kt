@@ -73,7 +73,7 @@ fun ListTaskItem(userApi: UserApi, jobApi: JobApi, item: Job, navController: Nav
                     }
                     IconButton(modifier = Modifier.background(color = Red2).size(30.dp), onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
-                            userApi.chosieTask(102, item.id)
+                            userApi.choiseTask(102, item.id)
                         }
                     }) {
                         Icon(Icons.Filled.Add, contentDescription = "Добавить работу", tint = Color.White)

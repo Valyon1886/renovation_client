@@ -2,11 +2,7 @@ package com.example.myapplication.Retrofit
 import com.example.myapplication.Entity.*
 import com.example.myapplication.Models.EmployerInput
 import com.example.myapplication.Models.UserInput
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface UserApi {
 
@@ -19,6 +15,9 @@ interface UserApi {
     @GET("user/get/idToken/{idToken}")
     suspend fun getUserByIdToken(@Path("idToken") idToken: String): User
 
+    @PUT("user/update/{idUser}")
+    suspend fun updateUserImg(@Path("idUser") idUser: Int, @Body userImg: UserImg): User
+
     @GET("user/get/{id}")
     suspend fun getUserById(@Path("id") id: Int): User
 
@@ -26,7 +25,10 @@ interface UserApi {
     suspend fun getUserTask(@Path("id") id: Int): List<Job>
 
     @POST("user/{userId}/choise/{jobId}")
-    suspend fun chosieTask(@Path("userId") userId: Int, @Path("jobId") jobId: Int): User
+    suspend fun choiseTask(@Path("userId") userId: Int, @Path("jobId") jobId: Int): User
+
+    @POST("user/{userId}/finish/{jobId}")
+    suspend fun finishTask(@Path("userId") userId: Int, @Path("jobId") jobId: Int): User
 
     @DELETE("job/delete/task/{subTaskId}/{jobId}")
     suspend fun deleteTask(@Path("subTaskId") subTaskId: Int, @Path("jobId") jobId: Int)

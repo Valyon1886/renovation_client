@@ -815,6 +815,22 @@ fun JobInfo(
                                             }
                                         }
                                     }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(5.dp)
+                                    )
+                                    {
+                                        Button(onClick = {
+                                            CoroutineScope(Dispatchers.IO).launch {
+                                                jobApi.finishTaskToJob(item.id, job.id)
+                                                endList.value = jobApi.getAllSubTask(jobId)
+                                            }
+
+                                        }) {
+
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -846,3 +862,5 @@ fun JobInfo(
         }
     )
 }
+
+

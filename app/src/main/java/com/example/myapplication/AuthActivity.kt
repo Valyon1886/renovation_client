@@ -62,10 +62,10 @@ class AuthActivity : AppCompatActivity() {
 //        auth.currentUser
         val cUser = auth.currentUser
         if(cUser!=null){
-            Toast.makeText(this, "Пользователь не нулевой", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Пора работать!", Toast.LENGTH_SHORT).show()
         }
         else{
-            Toast.makeText(this, "Пользователь нулевой", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Добро пожаловать", Toast.LENGTH_SHORT).show()
         }
         launcher = registerForActivityResult(StartActivityForResult()){
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
@@ -90,7 +90,7 @@ class AuthActivity : AppCompatActivity() {
                 if (it.isSuccessful) {
                     Toast.makeText(this, "Пользователь $email успешно зарегистрирован", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Не зарегало", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Регистрация не прошла!", Toast.LENGTH_SHORT).show()
                 }
             }
         }

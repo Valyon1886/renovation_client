@@ -9,5 +9,6 @@ data class User(
     var lastName: String,
     var jobs: MutableList<Job>?,
     var employers: MutableList<Employer>?,
+    var completedTasks: MutableList<Job>?,
     val id: Int
 )

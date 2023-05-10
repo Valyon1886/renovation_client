@@ -16,10 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.Entity.User
 import com.example.myapplication.MainActivity
 import com.example.myapplication.Models.JobInput
-import com.example.myapplication.Retrofit.EmployerApi
-import com.example.myapplication.Retrofit.JobApi
-import com.example.myapplication.Retrofit.MaterialApi
-import com.example.myapplication.Retrofit.UserApi
+import com.example.myapplication.Retrofit.*
 import com.example.myapplication.ui.theme.NavColor
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +28,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
@@ -53,10 +51,18 @@ fun MainScreen(
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
+    val retrofitDoc = Retrofit.Builder()
+        .baseUrl("http://10.0.2.2:8082").client(client)
+        .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
     val userApi = retrofit.create(UserApi::class.java)
     val materialApi = retrofit.create(MaterialApi::class.java)
     val employerApi = retrofit.create(EmployerApi::class.java)
     val jobApi = retrofit.create(JobApi::class.java)
+
+    val documentApi = retrofitDoc.create(DocumentApi::class.java)
 
     val navController = rememberNavController()
     Scaffold(
@@ -64,6 +70,6 @@ fun MainScreen(
             BottomNavigation(navController = navController)
         }
     ) {
-        NavGraph(navHostController = navController, jobApi, materialApi, userApi, employerApi, auth, mainActivity)
+        NavGraph(navHostController = navController, jobApi, materialApi, userApi, employerApi, documentApi, auth, mainActivity)
     }
 }

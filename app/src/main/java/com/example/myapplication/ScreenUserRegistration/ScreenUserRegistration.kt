@@ -12,8 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -172,7 +171,15 @@ fun ScreenUserRegistration(userApi: UserApi, navController: NavController, auth:
                             alignment = Alignment.TopCenter,
                             modifier = Modifier
                                 .size(200.dp)
+                                .border(
+                                    BorderStroke(5.dp, Color.Yellow),
+                                    CircleShape
+                                )
+                                .padding(5.dp)
                                 .clip(CircleShape)
+                                .clickable{
+                                    getImage()
+                                }
                         )
                         Button(onClick = {
                             getImage()

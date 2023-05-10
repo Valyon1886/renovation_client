@@ -50,15 +50,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
-import com.example.myapplication.Entity.Employer
-import com.example.myapplication.Entity.EmployerOfUser
-import com.example.myapplication.Entity.MainMaterial
-import com.example.myapplication.Entity.User
+import com.example.myapplication.Entity.*
 import com.example.myapplication.MainActivity
 import com.example.myapplication.Models.EmployerInput
 import com.example.myapplication.Models.MaterialInput
+import com.example.myapplication.Models.UserInput
 import com.example.myapplication.ui.theme.BGColor
 import com.example.myapplication.ui.theme.NavColor
 import com.example.myapplication.ui.theme.Red
@@ -74,6 +73,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
@@ -92,28 +92,74 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
     var post = remember { mutableStateOf(TextFieldValue("")) }
     var cost = remember { mutableStateOf(TextFieldValue("")) }
 
+    var userImgSrc by remember { mutableStateOf<User?>(null) }
+
     var listEmployer by remember { mutableStateOf<List<EmployerOfUser>>(emptyList()) }
 
-    val imageBitmapState = remember { mutableStateOf<ImageBitmap?>(null) }
+    val imageUriState = remember { mutableStateOf<Uri?>(null) }
+    var uploadUri: Uri? = null
     val storage = Firebase.storage
     var storageRef = storage.reference
     var imDB: ImageView? = null
 
     Log.d("uploadUri", user.imgSrc)
 
-    fun downloadImage(){
-        Picasso.get().load(user.imgSrc).into(imDB)
-        imageBitmapState.value = imDB?.drawable?.toBitmap()?.asImageBitmap()
-        Log.d("Image ", "${imageBitmapState.value}")
+//    fun downloadImage(){
+//        Picasso.get().load(user.imgSrc).into(imDB)
+//        imageBitmapState.value = imDB?.drawable?.toBitmap()?.asImageBitmap()
+//        Log.d("Image ", "${imageBitmapState.value}")
+//    }
+
+    fun saveUser(uploadUri: Uri?){
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d("imgSrc = ", " ${uploadUri.toString()}")
+            val userImg = UserImg(uploadUri.toString())
+            userApi.updateUserImg(user.id, userImg)
+        }
     }
 
-    val painter = imageBitmapState.value?.let { uri ->
-        rememberAsyncImagePainter(model = uri)
-    } ?: painterResource(id = R.drawable.image)
+    fun uploadImage() {
+        storageRef = Firebase.storage.reference.child("images/${auth.currentUser?.uid}/${imageUriState.value?.lastPathSegment}")
+        val uploadTask = imageUriState.value?.let { storageRef.putFile(it) }
 
+        uploadTask?.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let { throw it }
+            }
+            storageRef.downloadUrl
+        }?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                uploadUri = task.result
+                saveUser(uploadUri)
+            }
+        }
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                imageUriState.value = uri
+            }
+            uploadImage()
+        }
+    }
+
+    fun getImage(){
+        val intentChooser = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+        }
+        launcher.launch(intentChooser)
+    }
+
+    val painter = imageUriState.value?.let { uri ->
+        rememberAsyncImagePainter(model = uri)
+    } ?: rememberAsyncImagePainter(model = userImgSrc?.imgSrc)
 
     LaunchedEffect(true) {
         listEmployer = userApi.getUserEmployerOfUser(user.id)
+        userImgSrc = userApi.getUserByIdToken(auth.currentUser?.uid.toString())
     }
 
     BottomSheetScaffold(
@@ -326,7 +372,7 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
                                 .clip(CircleShape)
                         )
                         Button(onClick = {
-                            downloadImage()
+                            getImage()
                         }) {
                             Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Изменить картинку профиля")
                         }

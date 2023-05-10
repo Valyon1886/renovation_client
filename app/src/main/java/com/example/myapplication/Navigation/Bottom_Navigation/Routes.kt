@@ -6,4 +6,5 @@ sealed class Routes(val route: String) {
     object SubTask: Routes("subTask")
     object Material: Routes("material")
     object UserRegistration: Routes("user_registration")
+    object Loading: Routes("loading")
 }
