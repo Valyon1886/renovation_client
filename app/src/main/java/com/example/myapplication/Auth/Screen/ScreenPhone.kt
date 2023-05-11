@@ -1,6 +1,7 @@
 package com.example.myapplication.Auth.Screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +28,7 @@ import androidx.navigation.NavController
 import com.example.myapplication.Auth.RoutesAuth
 import com.example.myapplication.AuthActivity
 import com.example.myapplication.R
+import com.google.firebase.auth.PhoneAuthProvider
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -121,6 +123,7 @@ fun ScreenPhone(authActivity: AuthActivity, navController: NavController){
                             Button(
                                 onClick = {
                                     expanded = !expanded
+                                    authActivity.sendVerificationCode(phoneState.text)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -140,6 +143,11 @@ fun ScreenPhone(authActivity: AuthActivity, navController: NavController){
                         Box(modifier = Modifier.weight(2.7f), contentAlignment = Alignment.Center){
                             Button(
                                 onClick = {
+                                    val credential = PhoneAuthProvider.getCredential(authActivity.storedVerificationId, codeState.text)
+                                    Log.d("SMS_CODE", codeState.text)
+                                    var temp:String = authActivity.callbacks.toString()
+                                    Log.d("SMS_CODE_CALLBACK", temp)
+                                    authActivity.signInWithCredential(credential)
                                     navController.navigate(RoutesAuth.Authorization.route)
                                 },
                                 modifier = Modifier

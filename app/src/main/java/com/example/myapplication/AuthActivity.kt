@@ -46,7 +46,8 @@ import java.util.concurrent.TimeUnit
 class AuthActivity : AppCompatActivity() {
     lateinit var launcher: ActivityResultLauncher<Intent>
     lateinit var auth: FirebaseAuth
-
+    lateinit var storedVerificationId: String
+    lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -143,50 +144,50 @@ class AuthActivity : AppCompatActivity() {
         }
     }
 
+    fun sendVerificationCode(phoneNumber: String) {
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(phoneNumber)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(this)
+            .setCallbacks(callbacks)
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
 
+    val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+            // Автоматический вход после получения верификационного кода
+            auth.signInWithCredential(credential).addOnCompleteListener {
+                if(it.isSuccessful){
+                    Log.d("MyLog ", "Добро пожаловать!")
+                }
+            }
+        }
 
+        override fun onVerificationFailed(e: FirebaseException) {
+            // Обработка ошибки верификации
+            Log.d("MyLog ", e.message.toString())
+        }
 
-//    private fun sendVerificationCode(phoneNumber: String) {
-//        val options = PhoneAuthOptions.newBuilder(auth)
-//            .setPhoneNumber(phoneNumber)
-//            .setTimeout(60L, TimeUnit.SECONDS)
-//            .setActivity(this)
-//            .setCallbacks(callbacks)
-//            .build()
-//        PhoneAuthProvider.verifyPhoneNumber(options)
-//    }
-//
-//    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-//        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-//            // Автоматический вход после получения верификационного кода
-//            auth.signInWithCredential(credential).addOnCompleteListener {
-//                if(it.isSuccessful){
-//                    Log.d("MyLog ", "Добро пожаловать!")
-//                }
-//            }
-//        }
-//
-//        override fun onVerificationFailed(e: FirebaseException) {
-//            // Обработка ошибки верификации
-//            Log.d("MyLog ", e.message.toString())
-//        }
-//
-//        override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
-//            // Сохранение идентификатора верификации для последующего использования
-//            super.onCodeSent(verificationId, token)
-//        }
-//    }
-//
-//    private fun signInWithCredential(credential: PhoneAuthCredential) {
-//        auth.signInWithCredential(credential)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    Log.d("MyLog", "Все круто!")
-//                    checkAuthState()
-//                } else {
-//                    Log.d("MyLog", "Все не круто!")
-//                }
-//            }
-//    }
+        override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+            // Сохранение идентификатора верификации для последующего использования
+            Log.d("verID = ", "onCodeSent:$verificationId")
+
+            // Save verification ID and resending token so we can use them later
+            storedVerificationId = verificationId
+            resendToken = token
+        }
+    }
+    fun signInWithCredential(credential: PhoneAuthCredential) {
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("MyLog", "Все круто!")
+                    checkAuthState()
+                } else {
+                    Log.d("MyLog", "Все не круто!")
+                }
+            }
+    }
 
 }
