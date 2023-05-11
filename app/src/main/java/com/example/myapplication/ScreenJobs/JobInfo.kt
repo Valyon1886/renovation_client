@@ -1,9 +1,14 @@
 package com.example.myapplication.Composable
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.icu.text.CaseMap.Title
+import android.os.Build
+import android.text.format.DateUtils
 import android.util.Log
+import android.widget.DatePicker
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -56,8 +61,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.util.*
 import kotlin.math.absoluteValue
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -76,6 +84,37 @@ fun JobInfo(
     val materials = remember { mutableStateOf<List<Material>>(emptyList()) }
     var material by remember { mutableStateOf(Material("",0,0)) }
 
+    // Fetching the Local Context
+    val mContext = LocalContext.current
+
+    // Declaring integer values
+    // for year, month and day
+    val mYear: Int
+    val mMonth: Int
+    val mDay: Int
+
+    // Initializing a Calendar
+    val mCalendar = Calendar.getInstance()
+
+    // Fetching current year, month and day
+    mYear = mCalendar.get(Calendar.YEAR)
+    mMonth = mCalendar.get(Calendar.MONTH)
+    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    // Declaring a string value to
+    // store date in string format
+    val beginDate = "$mDay/${mMonth+1}/$mYear"
+    val endDate = remember { mutableStateOf("") }
+
+    // Declaring DatePickerDialog and setting
+    // initial values as current values (present year, month and day)
+    val mDatePickerDialog = DatePickerDialog(
+        mContext,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            endDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+        }, mYear, mMonth, mDay
+    )
+
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
@@ -87,6 +126,8 @@ fun JobInfo(
     var endList = remember { mutableStateOf(listTask) }
 
     var listMaterial = remember { mutableStateOf<List<Material>>(emptyList()) }
+
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
 //    var listMaterialInput = remember { mutableStateOf<List<Material>>(emptyList()) }
 
@@ -199,7 +240,25 @@ fun JobInfo(
                             .padding(start = 10.dp, end = 10.dp)
                     )
                     Spacer(modifier = Modifier.height(5.dp))
+                    Box(
+                        modifier = Modifier.background(color = Red)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
 
+                            // Creating a button that on
+                            // click displays/shows the DatePickerDialog
+                            IconButton(
+                                onClick = {
+                                    mDatePickerDialog.show()
+                                }
+                            ) {
+                                Icon(painterResource(id = R.drawable.baseline_calendar_month_24), contentDescription = "Календарь", tint = Color.White)
+                            }
+                            // Displaying the mDate value in the Text
+                            Text(text = "Конечная дата: ${endDate.value}", fontSize = 20.sp, textAlign = TextAlign.Center)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(5.dp))
                     AnimatedVisibility(modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
@@ -540,7 +599,12 @@ fun JobInfo(
                     Button(
                         onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
-                                val jobInput = JobInput(name.value.text, description.value.text, materials.value.toMutableList(), employers.value.toMutableList())
+                                val jobInput = JobInput(
+                                    name.value.text,
+                                    description.value.text,
+                                    materials.value.toMutableList(),
+                                    employers.value.toMutableList(),
+                                    beginDate, endDate.value)
                                 Log.d("JobInput", "${jobInput.materials} ${jobInput.employers}")
                                 jobApi.addTaskToJob(jobInput, jobId)
 

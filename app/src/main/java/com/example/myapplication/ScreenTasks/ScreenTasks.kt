@@ -34,6 +34,8 @@ import com.example.myapplication.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -56,6 +58,8 @@ fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, 
     var settingExpand by remember { mutableStateOf(false) }
     
     var buttonRating by remember { mutableStateOf(0) }
+    var buttonEndDate by remember { mutableStateOf(0) }
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -332,7 +336,26 @@ fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, 
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable(
-                                    onClick = { }
+                                    onClick = {
+                                        when (buttonEndDate) {
+                                            0 -> {
+                                                listJob =
+                                                        listJob.sortedBy {
+                                                    val endDate = it.endDate
+                                                    dateFormat.parse(endDate!!)
+                                                }
+                                                buttonEndDate = 1
+                                            }
+                                            1 -> {
+                                                listJob =
+                                                    listJob.sortedByDescending {
+                                                        val endDate = it.endDate
+                                                        dateFormat.parse(endDate!!)
+                                                    }
+                                                buttonEndDate = 0
+                                            }
+                                        }
+                                    }
                                 )
                         )
                     }
