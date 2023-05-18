@@ -1,19 +1,28 @@
 package com.example.myapplication.Composable
 
+import android.opengl.Visibility
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -69,9 +78,33 @@ fun JobItem(userApi: UserApi, jobApi: JobApi, documentApi: DocumentApi, navContr
                             .fillMaxWidth()
                             .padding(5.dp)
                     ){
-                        Column() {
-                            Text(text = "Название", color = TextJobItem, fontSize = 12.sp)
-                            Text(text = "${item.name}", color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
+                            var visibleState by remember { mutableStateOf(false) }
+                            if(item.subTasks?.isEmpty() == false) visibleState = true
+                            Log.d("${item.name} ", "${visibleState}")
+                            Box(contentAlignment = Alignment.CenterStart){
+                                Column() {
+                                    Text(text = "Название", color = TextJobItem, fontSize = 12.sp)
+                                    Text(
+                                        text = "${item.name}",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 15.sp
+                                    )
+                                }
+                            }
+                            AnimatedVisibility(visible = visibleState){
+                                Box(){
+                                    Text(
+                                        text = "${if (item.completedSubTasks?.count() == null) 0 else item.completedSubTasks?.count()}/" +
+                                                "${if(item.completedSubTasks?.count() == null) item.subTasks?.count() else item.subTasks?.count()?.plus(item.completedSubTasks?.count()!!)}",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color.White,
+                                        textAlign = TextAlign.Right
+                                    )
+                                }
+                            }
                         }
                     }
                     Box(
@@ -124,9 +157,15 @@ fun JobItem(userApi: UserApi, jobApi: JobApi, documentApi: DocumentApi, navContr
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(5.dp)
+                            .padding(5.dp),
+                        contentAlignment = Alignment.Center
                     ){
-                        Button(onClick = {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                            border = BorderStroke(3.dp, Color.Black),
+                            contentPadding = PaddingValues(8.dp),
+                            shape = RoundedCornerShape(15.dp),
+                            onClick = {
                             if (item.subTasks?.isEmpty() == true){
                                 CoroutineScope(Dispatchers.IO).launch {
                                     userApi.finishTask(user.id, item.id)
@@ -136,7 +175,7 @@ fun JobItem(userApi: UserApi, jobApi: JobApi, documentApi: DocumentApi, navContr
                                     listJob = userApi.getUserTask(user.id)
                                     delay(2000)
                                     userUpdate = userApi.getUserByIdToken(auth.currentUser?.uid.toString())
-                                    Log.d("Task ", "${userUpdate.toString()}")
+                                    Log.d("Task ", userUpdate.toString())
                                     userUpdate?.completedTasks?.size?.minus(1)
                                         ?.let { documentApi.generateDoc(userUpdate!!, it) }
 
@@ -154,7 +193,12 @@ fun JobItem(userApi: UserApi, jobApi: JobApi, documentApi: DocumentApi, navContr
 //                        }
 //                    }
                         }) {
-
+                            Text(
+                                text = "Завершить проект",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
                         }
                     }
                 }

@@ -103,7 +103,7 @@ fun JobInfo(
 
     // Declaring a string value to
     // store date in string format
-    val beginDate = "$mDay/${mMonth+1}/$mYear"
+    val beginDate = "$mDay/${if(mMonth+1<10) "0"+(mMonth+1) else mMonth+1}/$mYear"
     val endDate = remember { mutableStateOf("") }
 
     // Declaring DatePickerDialog and setting
@@ -111,7 +111,7 @@ fun JobInfo(
     val mDatePickerDialog = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            endDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+            endDate.value = "$mDayOfMonth/${if(mMonth+1<10) "0"+(mMonth+1) else mMonth+1}/$mYear"
         }, mYear, mMonth, mDay
     )
 
@@ -240,13 +240,8 @@ fun JobInfo(
                             .padding(start = 10.dp, end = 10.dp)
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    Box(
-                        modifier = Modifier.background(color = Red)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-
-                            // Creating a button that on
-                            // click displays/shows the DatePickerDialog
+                    Box() {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                             IconButton(
                                 onClick = {
                                     mDatePickerDialog.show()
@@ -254,8 +249,11 @@ fun JobInfo(
                             ) {
                                 Icon(painterResource(id = R.drawable.baseline_calendar_month_24), contentDescription = "Календарь", tint = Color.White)
                             }
-                            // Displaying the mDate value in the Text
-                            Text(text = "Конечная дата: ${endDate.value}", fontSize = 20.sp, textAlign = TextAlign.Center)
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = "Конечная дата: ${endDate.value}", fontSize = 20.sp, textAlign = TextAlign.Center,
+                                color = Color.White
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(5.dp))
@@ -349,7 +347,7 @@ fun JobInfo(
                                 onClick = { expanded = !expanded }
                             ) {
                                 Icon(
-                                    Icons.Filled.List,
+                                    painterResource(id = R.drawable.baseline_construction_24),
                                     contentDescription = "Показать список материалов",
                                     tint = Color.White
                                 )
@@ -882,17 +880,28 @@ fun JobInfo(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(5.dp)
+                                            .padding(5.dp),
+                                        contentAlignment = Alignment.Center
                                     )
                                     {
-                                        Button(onClick = {
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                jobApi.finishTaskToJob(item.id, job.id)
-                                                endList.value = jobApi.getAllSubTask(jobId)
+                                        Button(
+                                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                                            border = BorderStroke(3.dp, Color.Black),
+                                            contentPadding = PaddingValues(8.dp),
+                                            shape = RoundedCornerShape(15.dp),
+                                            onClick = {
+                                                CoroutineScope(Dispatchers.IO).launch {
+                                                    jobApi.finishTaskToJob(item.id, job.id)
+                                                    endList.value = jobApi.getAllSubTask(jobId)
+                                                }
                                             }
-
-                                        }) {
-
+                                        ) {
+                                            Text(
+                                                text = "Завершить проект",
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Black
+                                            )
                                         }
                                     }
                                 }

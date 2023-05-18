@@ -13,14 +13,17 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -46,6 +49,8 @@ fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, 
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val scope = rememberCoroutineScope()
+    var rotate = remember { mutableStateOf(0) }
+    var label = remember { mutableStateOf(R.drawable.baseline_trending_down_24) }
 
     var job by remember { mutableStateOf<Job?>(null) }
     var listJob by remember { mutableStateOf<List<Job>>(emptyList()) }
@@ -297,67 +302,80 @@ fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, 
                     }
                     Divider(color = Color.White, thickness = 1.dp)
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(2f)){
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier
+                            .clickable(
+                                onClick = {
+                                    when (buttonRating) {
+                                        0 -> {
+                                            listJob =
+                                                listJob.sortedBy { job: Job -> job.rating }
+                                            buttonRating = 1
+                                            rotate.value = (-180f).toInt()
+                                        }
+                                        1 -> {
+                                            listJob =
+                                                listJob.sortedByDescending { job: Job -> job.rating }
+                                            buttonRating = 0
+                                            rotate.value = 0
+                                        }
+                                    }
+                                }
+                            )
+                        ) {
                             Text(
                                 text = "По рейтингу",
                                 color = Color.White,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 20.sp,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        onClick = {
-                                            when (buttonRating) {
-                                                0 -> {
-                                                    listJob =
-                                                        listJob.sortedBy { job: Job -> job.rating }
-                                                    buttonRating = 1
-                                                }
-                                                1 -> {
-                                                    listJob =
-                                                        listJob.sortedByDescending { job: Job -> job.rating }
-                                                    buttonRating = 0
-                                                }
-                                            }
-                                        }
-                                    )
+                                textAlign = TextAlign.Right
                             )
-                            Spacer(modifier = Modifier.width(width = 20.dp))
-                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Вниз")
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Icon(painter = painterResource(id = R.drawable.baseline_sort_24), contentDescription = "Вниз", tint = Color.White, modifier = Modifier
+                                .size(27.dp)
+                                .graphicsLayer {
+                                    rotationX = rotate.value.toFloat()
+                                })
                         }
                     }
                     Divider(color = Color.White, thickness = 1.dp)
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(2f)){
-                        Text(
-                            text = "По дате",
-                            color = Color.White,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 20.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        when (buttonEndDate) {
-                                            0 -> {
-                                                listJob =
-                                                        listJob.sortedBy {
+                        Row(modifier = Modifier
+                            .clickable(
+                                onClick = {
+                                    when (buttonEndDate) {
+                                        0 -> {
+                                            listJob =
+                                                listJob.sortedBy {
                                                     val endDate = it.endDate
                                                     dateFormat.parse(endDate!!)
                                                 }
-                                                buttonEndDate = 1
-                                            }
-                                            1 -> {
-                                                listJob =
-                                                    listJob.sortedByDescending {
-                                                        val endDate = it.endDate
-                                                        dateFormat.parse(endDate!!)
-                                                    }
-                                                buttonEndDate = 0
-                                            }
+                                            buttonEndDate = 1
+                                            label.value = R.drawable.baseline_trending_up_24
+                                        }
+                                        1 -> {
+                                            listJob =
+                                                listJob.sortedByDescending {
+                                                    val endDate = it.endDate
+                                                    dateFormat.parse(endDate!!)
+                                                }
+                                            buttonEndDate = 0
+                                            label.value = R.drawable.baseline_trending_down_24
                                         }
                                     }
+                                }
+                            )) {
+                            Text(
+                                text = "По приоритету",
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center
                                 )
-                        )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Icon(painter = painterResource(id = label.value), contentDescription = "Вниз", tint = Color.White, modifier = Modifier.size(27.dp))
+                        }
+
                     }
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(2f)){
 

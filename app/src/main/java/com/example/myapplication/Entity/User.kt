@@ -1,14 +1,14 @@
 package com.example.myapplication.Entity
 
 data class User(
-    var userName: String,
-    var password: String,
-    var imgSrc: String,
-    var firstName: String,
-    var secondName: String,
-    var lastName: String,
-    var jobs: MutableList<Job>?,
-    var employers: MutableList<Employer>?,
-    var completedTasks: MutableList<Job>?,
-    val id: Int
+    var userName: String, /*имя в приложении*/
+    var password: String, /*пароль*/
+    var imgSrc: String, /*изображение профиля*/
+    var firstName: String, /*имя бригадира*/
+    var secondName: String, /*отчество бригадира*/
+    var lastName: String, /*фамилия бригадира*/
+    var jobs: MutableList<Job>?, /*списко выполняемых заданий*/
+    var employers: MutableList<Employer>?, /*список сотрудников в бригаде*/
+    var completedTasks: MutableList<Job>?, /*список выполненных заданий*/
+    val id: Int /*идентификатор пользователя*/
 )

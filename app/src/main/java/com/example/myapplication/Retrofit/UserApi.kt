@@ -5,21 +5,18 @@ import com.example.myapplication.Models.UserInput
 import retrofit2.http.*
 
 interface UserApi {
-
+    /*Проверка: авторизован ли пользователь*/
     @GET("user/get/token/{idToken}")
     suspend fun checkIdTokenUser(@Path("idToken") idToken: String): Boolean
-
+    /*Добавление пользователя после прохождения регистрации и заполнениея анкеты*/
     @POST("user/add")
     suspend fun addUser(@Body user: UserInput): User
-
+    /*Получение данных пользователя из БД*/
     @GET("user/get/idToken/{idToken}")
     suspend fun getUserByIdToken(@Path("idToken") idToken: String): User
-
+    /*Обновление изображения в профиле пользователя*/
     @PUT("user/update/{idUser}")
     suspend fun updateUserImg(@Path("idUser") idUser: Int, @Body userImg: UserImg): User
-
-    @GET("user/get/{id}")
-    suspend fun getUserById(@Path("id") id: Int): User
 
     @GET("user/get/allTask/{id}")
     suspend fun getUserTask(@Path("id") id: Int): List<Job>
@@ -50,4 +47,7 @@ interface UserApi {
 
     @DELETE("user/{userId}/deleteEmFrom/{employerId}")
     suspend fun deleteEmployerFromUser(@Path("userId") userId: Int, @Path("employerId") employerId: Int)
+
+    @GET("user/get/{id}")
+    suspend fun getUserById(@Path("id") id: Int): User
 }

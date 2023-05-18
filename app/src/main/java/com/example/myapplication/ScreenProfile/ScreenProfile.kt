@@ -13,10 +13,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -31,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
@@ -361,21 +359,34 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
                         .weight(1.5f),
                     contentAlignment = Alignment.Center
                 ){
-                    Column() {
+
+                    Box(){
                         Image(
                             painter = painter,
                             contentDescription = "profile",
                             contentScale = ContentScale.Crop,
-                            alignment = Alignment.TopCenter,
                             modifier = Modifier
-                                .size(100.dp)
+                                .size(125.dp)
                                 .clip(CircleShape)
+                                .border(2.dp, color = Color.White, CircleShape)
                         )
-                        Button(onClick = {
-                            getImage()
-                        }) {
-                            Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Изменить картинку профиля")
-                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_edit_24),
+                            contentDescription = "pencil",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(30.dp)
+                                .aspectRatio(1f)
+                                .padding(end = 5.dp, bottom = 5.dp)
+                                .align(Alignment.BottomEnd)
+                                .clip(CircleShape)
+                                .background(Color.Black)
+                                .clickable {
+                                    getImage()
+                                }
+                                .border(2.dp, color = Color.White, CircleShape)
+                                .scale(0.75f)
+                        )
                     }
                 }
                 Box(
@@ -411,7 +422,7 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
                             ){
                                 Column() {
                                     Text(
-                                        text = "30",
+                                        text = "${if (user.completedTasks?.count() == null) 0 else user.completedTasks?.count()}",
                                         modifier = Modifier.fillMaxWidth(),
                                         textAlign = TextAlign.Center,
                                         fontWeight = FontWeight.Bold,
@@ -547,6 +558,7 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
                                                 }
                                             }
                                         }
+                                        Divider(color = Color.White, thickness = 1.dp)
                                     }
                                 }
                             }
