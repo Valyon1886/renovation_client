@@ -54,6 +54,7 @@ class AuthActivity : AppCompatActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         setContent{
             Scaffold {
                 AuthMainScreen(authActivity = this@AuthActivity)

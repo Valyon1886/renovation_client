@@ -1,6 +1,7 @@
 package com.example.myapplication.ScreenDocx
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -108,6 +109,10 @@ fun ScreenDocx(documentApi: DocumentApi, mainActivity: MainActivity, user: User)
                                                         outputStream.use { output ->
                                                             input.copyTo(output)
                                                         }
+                                                    }
+
+                                                    mainActivity.runOnUiThread{
+                                                        Toast.makeText(mainActivity, "Отчет загружен на Ваше устройство!", Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             }

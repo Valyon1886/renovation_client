@@ -47,6 +47,7 @@ import com.example.myapplication.Entity.Employer
 import com.example.myapplication.Entity.Job
 import com.example.myapplication.Entity.Material
 import com.example.myapplication.Entity.User
+import com.example.myapplication.MainActivity
 import com.example.myapplication.Models.JobInput
 import com.example.myapplication.Models.MaterialInput
 import com.example.myapplication.Navigation.Bottom_Navigation.Routes
@@ -76,7 +77,8 @@ fun JobInfo(
     jobId: Int,
     jobApi: JobApi,
     userApi: UserApi,
-    user: User
+    user: User,
+    mainActivity: MainActivity
 ) {
 
     val name = remember { mutableStateOf(TextFieldValue("")) }
@@ -185,7 +187,7 @@ fun JobInfo(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(800.dp)
+                    .height(780.dp)
                     .background(color = NavColor),
                 contentAlignment = Alignment.TopCenter
             ) {
@@ -611,6 +613,7 @@ fun JobInfo(
                                 //очищаются поля с названием и описанием
                                 name.value = TextFieldValue("")
                                 description.value = TextFieldValue("")
+                                endDate.value = ""
                                 //закрывается поле с выбранными материалами
                                 expandedTagMaterial = false
                                 //очищаем список с материалами
@@ -633,6 +636,10 @@ fun JobInfo(
                             label.value =
                                 if (label.value == Icons.Filled.Add) Icons.Filled.ArrowDropDown else Icons.Filled.Add
                             keyboard?.hide()
+
+                            mainActivity.runOnUiThread{
+                                Toast.makeText(mainActivity, "Подзадача ${name.value.text} успешно создана!", Toast.LENGTH_SHORT).show()
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(Red),
                         modifier = Modifier
@@ -731,6 +738,9 @@ fun JobInfo(
                                                 CoroutineScope(Dispatchers.IO).launch {
                                                     userApi.deleteTask(item.id, jobId)
                                                     endList.value = jobApi.getAllSubTask(jobId)
+                                                    mainActivity.runOnUiThread{
+                                                        Toast.makeText(mainActivity, "Подзадача ${item.name} удалена!", Toast.LENGTH_SHORT).show()
+                                                    }
                                                 }
                                             }) {
                                                 Icon(
@@ -893,11 +903,14 @@ fun JobInfo(
                                                 CoroutineScope(Dispatchers.IO).launch {
                                                     jobApi.finishTaskToJob(item.id, job.id)
                                                     endList.value = jobApi.getAllSubTask(jobId)
+                                                    mainActivity.runOnUiThread{
+                                                        Toast.makeText(mainActivity, "Подзадача ${item.name} завершена!", Toast.LENGTH_SHORT).show()
+                                                    }
                                                 }
                                             }
                                         ) {
                                             Text(
-                                                text = "Завершить проект",
+                                                text = "Завершить подзадачу",
                                                 fontSize = 18.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = Color.Black

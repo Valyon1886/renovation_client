@@ -1,6 +1,7 @@
 package com.example.myapplication.ScreenMaterial
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myapplication.Entity.Material
 import com.example.myapplication.Entity.MainMaterial
+import com.example.myapplication.MainActivity
 import com.example.myapplication.Models.MaterialInput
 import com.example.myapplication.Retrofit.MaterialApi
 import com.example.myapplication.Retrofit.UserApi
@@ -40,7 +42,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScreenMaterial(
-    jobId: Int, userApi: UserApi, materialApi: MaterialApi, navController: NavController
+    jobId: Int, userApi: UserApi, materialApi: MaterialApi, navController: NavController, mainActivity: MainActivity
 ) {
 
     var listMaterial by remember { mutableStateOf<List<MainMaterial>>(emptyList()) }
@@ -150,6 +152,7 @@ fun ScreenMaterial(
                         onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val materialInput = MaterialInput(name.value.text, count.value.text.toIntOrNull(), cost.value.text.toIntOrNull())
+                                val materialName = name.value.text
                                 materialApi.addMaterialToJob(materialInput, jobId)
 
                                 listMaterial = userApi.getUserMainMaterial(jobId)
@@ -157,6 +160,10 @@ fun ScreenMaterial(
                                 name.value = TextFieldValue("")
                                 cost.value = TextFieldValue("")
                                 count.value = TextFieldValue("")
+
+                                mainActivity.runOnUiThread{
+                                    Toast.makeText(mainActivity, "Материал $materialName добавлен!", Toast.LENGTH_SHORT).show()
+                                }
                             }
 
                             scope.launch {
@@ -303,8 +310,12 @@ fun ScreenMaterial(
                                         Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
                                             IconButton(modifier = Modifier.size(30.dp), onClick = {
                                                 CoroutineScope(Dispatchers.IO).launch {
+                                                    val materialName = item.name
                                                     materialApi.deleteMaterialFromJob(item.id, jobId)
                                                     listMaterial = userApi.getUserMainMaterial(jobId)
+                                                    mainActivity.runOnUiThread{
+                                                        Toast.makeText(mainActivity, "Материал $materialName удалён!", Toast.LENGTH_SHORT).show()
+                                                    }
                                                 }
                                             }) {
                                                 Icon(

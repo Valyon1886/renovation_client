@@ -422,7 +422,7 @@ fun ScreenProfile(userApi: UserApi, auth: FirebaseAuth, mainActivity: MainActivi
                             ){
                                 Column() {
                                     Text(
-                                        text = "${if (user.completedTasks?.count() == null) 0 else user.completedTasks?.count()}",
+                                        text = "${if (userImgSrc?.completedTasks?.count() == null) 0 else userImgSrc?.completedTasks?.count()}",
                                         modifier = Modifier.fillMaxWidth(),
                                         textAlign = TextAlign.Center,
                                         fontWeight = FontWeight.Bold,

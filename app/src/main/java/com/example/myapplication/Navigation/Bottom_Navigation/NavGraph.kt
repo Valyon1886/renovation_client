@@ -66,6 +66,7 @@ fun NavGraph(
     var checkIdToken by remember { mutableStateOf(false) }
     val isLoading = remember { AtomicBoolean(true) }
 
+
 //    LaunchedEffect(Unit) {
 //        checkIdToken = userApi.checkIdTokenUser(auth.currentUser?.uid.toString()) == true
 //        if (checkIdToken) user = userApi.getUserByIdToken(auth.currentUser?.uid.toString())
@@ -83,21 +84,21 @@ fun NavGraph(
             ScreenJobs(userApi, jobApi, documentApi, navHostController, auth, user!!, mainActivity)
         }
         composable("tasks") {
-            ScreenTasks(userApi, jobApi, navHostController, user!!)
+            ScreenTasks(userApi, jobApi, navHostController, user!!, mainActivity)
         }
         composable("docx") {
             ScreenDocx(documentApi, mainActivity, user!!)
         }
         composable("${Routes.Material.route}/{id}") { navBackStack ->
             val jobId = navBackStack.arguments?.getString("id")?.toInt() ?: 0
-            ScreenMaterial(jobId = jobId, userApi, materialApi, navHostController)
+            ScreenMaterial(jobId = jobId, userApi, materialApi, navHostController, mainActivity)
         }
         composable(Routes.CreateJob.route) {
             ScreenCreateJob(jobApi, navHostController)
         }
         composable("${Routes.SubTask.route}/{id}") { navBackStack ->
             val jobId = navBackStack.arguments?.getString("id")?.toInt() ?: 0
-            ScreenSubTask(jobId = jobId, jobApi, navHostController, userApi, user!!)
+            ScreenSubTask(jobId = jobId, jobApi, navHostController, userApi, user!!, mainActivity)
         }
         composable("user_registration") {
             ScreenUserRegistration(userApi, navHostController, auth, mainActivity)
@@ -122,9 +123,10 @@ fun NavGraph(
 
 }
 
-@Preview
+
 @Composable
 fun ScreenLoading() {
+    val load = "Подготавливаем..."
     val progressValue = 1f
     val infiniteTransition = rememberInfiniteTransition()
 
@@ -144,10 +146,11 @@ fun ScreenLoading() {
             )
             Spacer(modifier = Modifier.width(width = 20.dp))
             Text(
-                text = "Загружаем задачи...",
+                text = load,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
         }
     }
+
 }

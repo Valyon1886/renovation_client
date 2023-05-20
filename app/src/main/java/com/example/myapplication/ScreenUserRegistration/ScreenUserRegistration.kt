@@ -25,6 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -165,7 +166,7 @@ fun ScreenUserRegistration(userApi: UserApi, navController: NavController, auth:
                         .weight(2f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column() {
+                    Box() {
                         Image(
                             painter = painter,
                             contentDescription = "profile",
@@ -173,21 +174,28 @@ fun ScreenUserRegistration(userApi: UserApi, navController: NavController, auth:
                             alignment = Alignment.TopCenter,
                             modifier = Modifier
                                 .size(200.dp)
-                                .border(
-                                    BorderStroke(5.dp, Color.Yellow),
-                                    CircleShape
-                                )
-                                .padding(5.dp)
+                                .border(2.dp, color = Color.Black, CircleShape)
                                 .clip(CircleShape)
                                 .clickable{
                                     getImage()
                                 }
                         )
-                        Button(onClick = {
-                            getImage()
-                        }) {
-                            Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Изменить картинку профиля")
-                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_edit_24),
+                            contentDescription = "Изменить картинку профиля",
+                            modifier = Modifier
+                                .size(50.dp)
+                                .aspectRatio(1f)
+                                .padding(end = 15.dp, bottom = 15.dp)
+                                .align(Alignment.BottomEnd)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .clickable {
+                                    getImage()
+                                }
+                                .border(2.dp, color = Color.Black, CircleShape)
+                                .scale(0.75f)
+                        )
                     }
                 }
                 Box(

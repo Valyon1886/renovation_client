@@ -3,6 +3,7 @@ package com.example.myapplication.ScreenTasks
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.navigation.NavController
 import com.example.myapplication.Auth.RoutesAuth
 import com.example.myapplication.Entity.Job
 import com.example.myapplication.Entity.User
+import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.Retrofit.JobApi
 import com.example.myapplication.Retrofit.UserApi
@@ -44,7 +46,7 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, user: User) {
+fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, user: User, mainActivity: MainActivity) {
 
     val sheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
@@ -151,6 +153,9 @@ fun ScreenTasks(userApi: UserApi, jobApi: JobApi, navController: NavController, 
                                                 userApi.choiseTask(user.id, item.id)
                                                 listJob = jobApi.getAllJob()
                                                 snackbarVisible.value = true
+                                                mainActivity.runOnUiThread{
+                                                    Toast.makeText(mainActivity, "Работа добавлена в Ваши проекты!", Toast.LENGTH_SHORT).show()
+                                                }
                                             }
                                         }) {
                                             Icon(

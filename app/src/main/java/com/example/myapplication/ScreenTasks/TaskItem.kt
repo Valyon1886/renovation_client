@@ -265,7 +265,7 @@ fun TaskItem(userApi: UserApi, jobApi: JobApi, navController: NavController, use
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Carousel(images: MutableList<String>?) {
-    val pageCount = 2
+    val pageCount = 3
     val pagerState = rememberPagerState()
 
     Column{
